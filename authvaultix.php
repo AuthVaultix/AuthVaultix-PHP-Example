@@ -141,7 +141,7 @@ class api
 
     private function req($data)
     {
-        $curl = curl_init("https://api.authvaultix.com/api/1.2/");
+        $curl = curl_init("https://authvaultix.com/api/1.0/");
         curl_setopt($curl, CURLOPT_USERAGENT, "AUTHECURE PHP API");
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
 
