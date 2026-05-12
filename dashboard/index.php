@@ -12,7 +12,7 @@ if (!isset($_SESSION['user_data'])) // if user not logged in
     exit();
 }
 
-$AuthVaultixApp = new AuthVaultix\api($name, $ownerid, $version, $secret);
+$AuthVaultixApp = new AuthVaultix\AuthVaultixClient($name, $ownerid, $secret, $version);
 
 function findSubscription($name, $list)
 {
@@ -24,13 +24,11 @@ function findSubscription($name, $list)
     return false;
 }
 
-$username = $_SESSION["user_data"]["username"];
-$subscriptions = $_SESSION["user_data"]["subscriptions"];
-$subscription = $_SESSION["user_data"]["subscriptions"][0]->subscription;
-$expiry = $_SESSION["user_data"]["subscriptions"][0]->expiry;
-$ip = $_SESSION["user_data"]["ip"];
-$creationDate = $_SESSION["user_data"]["createdate"];
-$lastLogin = $_SESSION["user_data"]["lastlogin"];
+$username = $_SESSION["user_data"]["username"] ?? "Unknown";
+$subscriptions = $_SESSION["user_data"]["subscriptions"] ?? [];
+$ip = $_SESSION["user_data"]["ip"] ?? "N/A";
+$creationDate = $_SESSION["user_data"]["createdate"] ?? 0;
+$lastLogin = $_SESSION["user_data"]["lastlogin"] ?? 0;
 
 if (isset($_POST['logout'])) {
     $AuthVaultixApp->logout();
@@ -45,12 +43,16 @@ if (isset($_POST['logout'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="referrer" content="no-referrer">
+    <title>AuthVaultix PHP Example</title>
+    <link rel="shortcut icon" href="../logo.webp" type="image/x-icon">
+
     <title>Dashboard | AuthVaultix Example</title>
     <!-- Tailwind CSS (via CDN for example dashboard) -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <script src="https://api.authvaultix.com/assets/css/unixtolocal.js"></script>
+
 
     <style>
         body {
@@ -162,7 +164,7 @@ if (isset($_POST['logout'])) {
             <div class="flex items-center justify-between h-16">
                 <!-- Logo -->
                 <div class="flex-shrink-0 flex items-center gap-3">
-                    <img class="h-8 w-auto" src="https://api.authvaultix.com/assets/img/logo.webp"
+                    <img class="h-8 w-auto" src="../logo.webp"
                         alt="AuthVaultix Logo">
                     <span class="font-semibold text-lg tracking-wide hidden sm:block">AuthVaultix</span>
                 </div>
@@ -320,7 +322,7 @@ if (isset($_POST['logout'])) {
                                     <div class="text-xs text-gray-400 flex items-center gap-1.5 mt-3">
                                         <i class="bi bi-hourglass-split"></i>
                                         <span>Expires:
-                                            <script>document.write(convertTimestamp(<?= $sub->expiry; ?>))</script>
+                                            <script>document.write(new Date(<?= $sub->expiry; ?> * 1000).toLocaleString())</script>
                                         </span>
                                     </div>
                                 </div>
