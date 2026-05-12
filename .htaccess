@@ -1,0 +1,31 @@
+# Block sensitive files
+<FilesMatch "^(\.env|credentials\.php)$">
+    Require all denied
+</FilesMatch>
+
+# Extra block for env/config/backup files
+<FilesMatch "(\.env)$">
+    Require all denied
+</FilesMatch>
+
+# Block direct access to credentials.php anywhere by URL rewrite
+RewriteEngine On
+RewriteRule (^|/)credentials\.php$ - [F,L,NC]
+RewriteRule (^|/)\.env$ - [F,L,NC]
+
+# Disable directory listing
+Options -Indexes
+
+
+
+
+
+
+
+#if you are usin Apache 2.2 you can use this
+#<FilesMatch "^(\.env|credentials\.php)$">
+#    Order allow,deny
+#    Deny from all
+#</FilesMatch>
+
+#Options -Indexes
