@@ -7,7 +7,7 @@ if (isset($_SESSION['user_data'])) {
     exit();
 }
 
-$AuthVaultixApp = new AuthVaultix\api($name, $ownerid, $secret, $version);
+$AuthVaultixApp = new AuthVaultix\AuthVaultixClient($name, $ownerid, $secret, $version);
 
 if (!isset($_SESSION['sessionid'])) {
     $AuthVaultixApp->init();
@@ -51,8 +51,9 @@ if (isset($_POST['license'])) {
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="referrer" content="no-referrer" />
     <title>AuthVaultix PHP Example</title>
-    <link rel="shortcut icon" href="https://api.authvaultix.com/assets/img/logo.webp" type="image/x-icon">
+    <link rel="shortcut icon" href="logo.webp" type="image/x-icon">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700" />
@@ -79,7 +80,7 @@ if (isset($_POST['license'])) {
             <!-- Logo area -->
             <div class="flex items-center gap-3">
                 <div class="w-auto h-12 rounded-lg flex items-center justify-center text-black font-bold text-xl">
-                    <img src="https://api.authvaultix.com/assets/img/logo.webp" alt="A"
+                    <img src="logo.webp" alt="A"
                         class="w-full h-full object-contain p-1 invert brightness-0">
                 </div>
                 <span class="text-xl font-bold tracking-wide">AuthVaultix</span>
