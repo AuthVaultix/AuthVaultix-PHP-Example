@@ -14,9 +14,9 @@ if (file_exists($envFilePath)) {
     }
 }
 
-$name = getenv('$name');
-$ownerid = getenv('$ownerid');
-$secret = getenv('$secret');
-$version = getenv('$version');
+$name = getenv('APP_NAME');
+$ownerid = getenv('OWNER_ID');
+$secret = getenv('SECRET');
+$version = getenv('VERSION');
 
 ?>
