@@ -35,7 +35,9 @@ This repository provides a **plug-and-play PHP example** demonstrating how to in
 authvaultix-php-example/
 ├── index.php           # Login / Register / License page (public)
 ├── authvaultix.php     # AuthVaultix PHP API wrapper (core library)
-├── credentials.php     # Your app credentials (name, ownerid, secret, version)
+├── credentials.php     # Parses .env and sets up credentials
+├── .env                # Your app credentials (name, ownerid, secret, version)
+├── logo.webp           # Local app logo to bypass hotlink protection
 └── dashboard/
     └── index.php       # Protected dashboard (requires authentication)
 ```
@@ -60,26 +62,25 @@ cd AuthVaultix-PHP-Example
 
 ### 3. Configure Your Credentials
 
-Open `credentials.php` and fill in your application details from the [AuthVaultix Dashboard](https://authvaultix.com):
+Create a `.env` file in the root directory and fill in your application details from the [AuthVaultix Dashboard](https://authvaultix.com):
 
-```php
-<?php
-$name    = "YourAppName";      // Application name
-$ownerid = "your_owner_id";   // Your Owner ID
-$secret  = "your_secret";     // Application Secret
-$version = "1.0";             // Application version
+```env
+$name=YourAppName
+$ownerid=your_owner_id
+$secret=your_secret
+$version=1.0
 ```
 
 > ⚠️ **Never commit real credentials to a public repository.**  
-> Add `credentials.php` to your `.gitignore` file.
+> Add `.env` to your `.gitignore` file.
 
 ### 4. Run Locally
 
 ```bash
-php -S localhost:8080
+php -S localhost/[Project-name]
 ```
 
-Then open [http://localhost:8080](http://localhost:8080) in your browser. & you can use XAMP server too. XAMP server location is `C:/xampp/htdocs`. Copy the project folder to the htdocs folder & run `http://localhost/authvaultix-php-example/` in your browser.
+Then open [http://localhost/[Project-name]](http://localhost/[Project-name]) in your browser. & you can use XAMP server too. XAMP server location is `C:/xampp/htdocs`. Copy the project folder to the htdocs folder & run `http://localhost/[Project-name]/` in your browser.
 
 ---
 
@@ -127,8 +128,6 @@ if (!$success) {
 ```php
 $success = $app->license($licenseKey);
 
-// With 2FA:
-$success = $app->license($licenseKey, $twoFactorCode);
 ```
 
 ### Logout
@@ -172,18 +171,18 @@ if (findSubscription("premium", $subs)) {
 
 ## 🔒 Security Notes
 
-| Concern           | Recommendation                                                          |
-| ----------------- | ----------------------------------------------------------------------- |
-| `credentials.php` | Add to `.gitignore` — never expose secrets                              |
-| SSL Verification  | Enable `CURLOPT_SSL_VERIFYPEER` in production                           |
-| Session Handling  | Use HTTPS in production to protect session cookies                      |
-| Error Display     | Disable `display_errors` in production (`ini_set('display_errors', 0)`) |
+| Concern          | Recommendation                                                          |
+| ---------------- | ----------------------------------------------------------------------- |
+| `.env` file      | Add to `.gitignore` — never expose `.env` secrets                       |
+| SSL Verification | Enable `CURLOPT_SSL_VERIFYPEER` in production                           |
+| Session Handling | Use HTTPS in production to protect session cookies                      |
+| Error Display    | Disable `display_errors` in production (`ini_set('display_errors', 0)`) |
 
 ---
 
 ## 🛠️ Customization
 
-- **Branding**: Replace the logo URL in `index.php` and `dashboard/index.php` with your own asset
+- **Branding**: Replace the `logo.webp` file with your own logo asset
 - **Styling**: The UI uses Tailwind CSS via CDN — swap for a local build for production
 - **Subscription Tiers**: Edit the `findSubscription()` call in `dashboard/index.php` to check for your specific subscription level names
 
