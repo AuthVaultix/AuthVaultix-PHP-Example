@@ -65,10 +65,10 @@ cd AuthVaultix-PHP-Example
 Create a `.env` file in the root directory and fill in your application details from the [AuthVaultix Dashboard](https://authvaultix.com):
 
 ```env
-$name=YourAppName
-$ownerid=your_owner_id
-$secret=your_secret
-$version=1.0
+APP_NAME=YourAppName
+OWNER_ID=your_owner_id
+SECRET=your_secret
+VERSION=your_version
 ```
 
 > ⚠️ **Never commit real credentials to a public repository.**  
@@ -104,8 +104,6 @@ $app->init(); // Must be called before any other method
 ```php
 $success = $app->login($username, $password);
 
-// With 2FA code:
-$success = $app->login($username, $password, $twoFactorCode);
 
 if ($success) {
     // $_SESSION['user_data'] is now populated
