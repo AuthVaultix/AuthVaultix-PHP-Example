@@ -95,7 +95,7 @@ The `authvaultix.php` file contains the `AuthVaultix\api` class. Here's how to u
 include 'authvaultix.php';
 include 'credentials.php';
 
-$app = new AuthVaultix\api($name, $ownerid, $secret, $version);
+$app = new AuthVaultix\AuthVaultixClient($name, $ownerid, $secret, $version);
 $app->init(); // Must be called before any other method
 ```
 
@@ -152,6 +152,51 @@ if (findSubscription("premium", $subs)) {
     echo "User has Premium access!";
 }
 ```
+
+---
+
+## 📖 API Reference
+
+### Authentication & Session
+| Method | Description |
+| :--- | :--- |
+| `init()` | Initializes the session with the API. |
+| `login($user, $pass, $code?)` | Authenticates a user. `$code` is for optional 2FA. |
+| `register($user, $pass, $key, $email?)` | Registers a new user. |
+| `license($key, $code?)` | Authenticates directly via license key. |
+| `check()` | Validates the current session. |
+| `logout()` | Terminates session and destroys user data. |
+
+### Account Management
+| Method | Description |
+| :--- | :--- |
+| `upgrade($user, $license)` | Upgrades user's subscription. |
+| `forgot_password($user, $email)` | Triggers a password reset. |
+| `change_username($new_username)` | Changes the current user's username. |
+
+### Security & Blacklist
+| Method | Description |
+| :--- | :--- |
+| `ban($reason)` | Bans the currently authenticated user. |
+| `check_blacklist()` | Checks if the current machine is blacklisted. |
+| `log($message)` | Sends a log message to the dashboard. |
+
+### Variables & Data
+| Method | Description |
+| :--- | :--- |
+| `get_global_var($var_key)` | Fetches a global server variable. |
+| `get_var($var_name)` | Fetches a user-specific variable. |
+| `set_var($var_name, $value)` | Sets a user-specific variable. |
+| `download($fileid)` | Securely downloads a file (returns base64 decoded). |
+
+### Communication
+| Method | Description |
+| :--- | :--- |
+| `fetch_online()` | Retrieves a list of online clients. |
+| `chat_send($msg, $channel)` | Sends a chat message. |
+| `chat_fetch($channel)` | Fetches chat history for a channel. |
+
+> **Note:** For any method that fails, check the `$app->lastError` property for the error message.
 
 ---
 
