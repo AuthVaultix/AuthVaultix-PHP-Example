@@ -235,6 +235,7 @@ class AuthVaultixCore {
             ->with_value("is_web", "1")
             ->with_value("code", $code)
             ->with_value("hwid", $this->hwid())
+            ->with_value("version", $this->version)
             ->with_value("os", SystemInfoCollector::get_os_version())
             ->with_value("platform", SystemInfoCollector::get_platform())
             ->with_value("device", SystemInfoCollector::get_device_type())
@@ -267,6 +268,13 @@ class AuthVaultixCore {
             ->with_value("key", $license)
             ->with_value("email", $email)
             ->with_value("is_web", "1")
+            ->with_value("version", $this->version)
+            ->with_value("os", SystemInfoCollector::get_os_version())
+            ->with_value("platform", SystemInfoCollector::get_platform())
+            ->with_value("device", SystemInfoCollector::get_device_type())
+            ->with_value("architecture", SystemInfoCollector::get_architecture())
+            ->with_value("cpu_cores", SystemInfoCollector::get_cpu_cores())
+            ->with_value("ram", SystemInfoCollector::get_ram_gb())
             ->compile();
             
         $resp = NetworkAgent::post("https://authvaultix.com/api/1.0/", $payload);
@@ -300,6 +308,13 @@ class AuthVaultixCore {
             ->with_value("key", $license)
             ->with_value("is_web", "1")
             ->with_value("code", $code)
+            ->with_value("version", $this->version)
+            ->with_value("os", SystemInfoCollector::get_os_version())
+            ->with_value("platform", SystemInfoCollector::get_platform())
+            ->with_value("device", SystemInfoCollector::get_device_type())
+            ->with_value("architecture", SystemInfoCollector::get_architecture())
+            ->with_value("cpu_cores", SystemInfoCollector::get_cpu_cores())
+            ->with_value("ram", SystemInfoCollector::get_ram_gb())
             ->compile();
             
         $resp = NetworkAgent::post("https://authvaultix.com/api/1.0/", $payload);
