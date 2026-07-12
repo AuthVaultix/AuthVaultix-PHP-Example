@@ -16,10 +16,24 @@ class NetworkAgent {
         curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($payload));
         
         $response = curl_exec($curl);
+        if ($response === false) {
+            $err = curl_error($curl);
+            curl_close($curl);
+            return (object)[
+                'success' => false,
+                'message' => "cURL Error: " . $err
+            ];
+        }
         curl_close($curl);
         
-        if (!$response) return null;
-        return json_decode($response);
+        $decoded = json_decode($response);
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            return (object)[
+                'success' => false,
+                'message' => "JSON Decode Error: " . json_last_error_msg() . ". Response was: " . substr($response, 0, 100)
+            ];
+        }
+        return $decoded;
     }
 }
 
@@ -48,6 +62,107 @@ class PayloadBuilder {
     
     public function compile() {
         return $this->payload;
+    }
+}
+
+class SystemInfoCollector {
+    private static function is_windows() {
+        return defined('PHP_OS_FAMILY') ? PHP_OS_FAMILY === 'Windows' : strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
+    }
+
+    private static function is_darwin() {
+        return defined('PHP_OS_FAMILY') ? PHP_OS_FAMILY === 'Darwin' : strtoupper(substr(PHP_OS, 0, 3)) === 'DAR';
+    }
+
+    private static function is_linux() {
+        return defined('PHP_OS_FAMILY') ? PHP_OS_FAMILY === 'Linux' : strtoupper(substr(PHP_OS, 0, 3)) === 'LIN';
+    }
+
+    public static function get_os_version() {
+        if (self::is_windows()) {
+            $caption = @shell_exec('powershell -Command "(Get-CimInstance Win32_OperatingSystem).Caption"');
+            $caption = trim($caption);
+            if (strpos($caption, "Microsoft ") === 0) {
+                $caption = substr($caption, 10);
+            }
+            $version = @shell_exec('powershell -Command "(Get-CimInstance Win32_OperatingSystem).Version"');
+            $version = trim($version);
+            if (!empty($caption) && !empty($version)) {
+                return "$caption ($version)";
+            } elseif (!empty($caption)) {
+                return $caption;
+            }
+            return "Windows";
+        } elseif (self::is_darwin()) {
+            $version = @shell_exec('sw_vers -productVersion');
+            $version = trim($version);
+            return !empty($version) ? "macOS ($version)" : "macOS";
+        } elseif (self::is_linux()) {
+            $version = @shell_exec('uname -sr');
+            $version = trim($version);
+            return !empty($version) ? $version : "Linux";
+        }
+        return "Unknown OS";
+    }
+
+    public static function get_platform() {
+        return "native";
+    }
+
+    public static function get_device_type() {
+        return "Desktop";
+    }
+
+    public static function get_architecture() {
+        if (self::is_windows()) {
+            return strtoupper(getenv('PROCESSOR_ARCHITECTURE') ?: 'X64');
+        } else {
+            $arch = @shell_exec('uname -m');
+            $arch = trim($arch);
+            return !empty($arch) ? strtoupper($arch) : "X64";
+        }
+    }
+
+    public static function get_cpu_cores() {
+        if (self::is_windows()) {
+            $physical_cores = @shell_exec('powershell -Command "(Get-CimInstance Win32_Processor).NumberOfCores"');
+            $physical_cores = trim($physical_cores);
+            $logical_processors = getenv('NUMBER_OF_PROCESSORS') ?: "2";
+            $cores = empty($physical_cores) ? $logical_processors : $physical_cores;
+            return "$cores Cores / $logical_processors Threads";
+        } else {
+            $logical = "2";
+            if (self::is_darwin()) {
+                $logical = @shell_exec('sysctl -n hw.ncpu');
+            } else {
+                $logical = @shell_exec('nproc');
+            }
+            $logical = trim($logical);
+            if (empty($logical)) $logical = "2";
+            return "$logical Cores / $logical Threads";
+        }
+    }
+
+    public static function get_ram_gb() {
+        if (self::is_windows()) {
+            $ram = @shell_exec('powershell -Command "[Math]::Round((Get-CimInstance Win32_ComputerSystem).TotalPhysicalMemory / 1GB)"');
+            $ram = trim($ram);
+            return !empty($ram) ? $ram : "0";
+        } elseif (self::is_darwin()) {
+            $bytes = @shell_exec('sysctl -n hw.memsize');
+            $bytes = trim($bytes);
+            if (ctype_digit($bytes) && $bytes > 0) {
+                return strval(intval($bytes / (1024 * 1024 * 1024)));
+            }
+            return "0";
+        } else {
+            $kb = @shell_exec("grep MemTotal /proc/meminfo | awk '{print \$2}'");
+            $kb = trim($kb);
+            if (ctype_digit($kb) && $kb > 0) {
+                return strval(intval($kb / (1024 * 1024)));
+            }
+            return "0";
+        }
     }
 }
 
@@ -119,6 +234,13 @@ class AuthVaultixCore {
             ->with_value("pass", $password)
             ->with_value("is_web", "1")
             ->with_value("code", $code)
+            ->with_value("hwid", $this->hwid())
+            ->with_value("os", SystemInfoCollector::get_os_version())
+            ->with_value("platform", SystemInfoCollector::get_platform())
+            ->with_value("device", SystemInfoCollector::get_device_type())
+            ->with_value("architecture", SystemInfoCollector::get_architecture())
+            ->with_value("cpu_cores", SystemInfoCollector::get_cpu_cores())
+            ->with_value("ram", SystemInfoCollector::get_ram_gb())
             ->compile();
             
         $resp = NetworkAgent::post("https://authvaultix.com/api/1.0/", $payload);

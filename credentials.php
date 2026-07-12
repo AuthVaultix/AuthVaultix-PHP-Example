@@ -9,7 +9,9 @@ if (file_exists($envFilePath)) {
 
         if (strpos($line, '=') !== false) {
             list($key, $val) = explode('=', $line, 2);
-            putenv(trim($key) . "=" . trim($val));
+            $val = trim($val);
+            $val = trim($val, "\"'");
+            putenv(trim($key) . "=" . $val);
         }
     }
 }
